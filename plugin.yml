@@ -1,0 +1,9 @@
+name: CRAuth
+main: com.craftrealms.CRAuth.CRAuth
+version: 1.0
+commands:
+  login:
+    description: Login to the server
+    usage: /login <password>
+    permission: crauth.login
+    permission-message: You do not have permission to login!
