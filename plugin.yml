@@ -7,3 +7,8 @@ commands:
     usage: /login <password>
     permission: crauth.login
     permission-message: You do not have permission to login!
+  register:
+    description: Register an account to the server
+    usage: /register <password> <passwordagain>
+    permission: crauth.register
+    permission-message: You do not have permission to register a new account!

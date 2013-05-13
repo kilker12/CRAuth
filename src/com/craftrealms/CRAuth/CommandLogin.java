@@ -4,6 +4,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -19,15 +20,24 @@ public class CommandLogin implements CommandExecutor {
 	
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+		String password;
+		try {
+			password = args[0];
+		} catch(ArrayIndexOutOfBoundsException e) {
+			return false;
+		}
 		String hash = null;
-		String password = args[0];
 		MessageDigest md = null;
 		String sha256_password = null;
 		String temp = null;
 		try {
-			hash = p.getHash(sender.getName());
+			hash = p.pwds.getHash(sender.getName());
 		} catch (SQLException e) {
 			e.printStackTrace();
+		}
+		if(hash == null) {
+			sender.sendMessage("You arent registered yet! Use /register <password> <passwordagain>");
+			return true;
 		}
 		String[] sha_info = hash.split("\\$");
 		if(sha_info[1].equals("SHA")) {
@@ -42,8 +52,15 @@ public class CommandLogin implements CommandExecutor {
 			md.update(sha256_password.getBytes());
 			temp = getHex(md.digest()).toLowerCase();
 			if(sha_info[3].equals(temp)) {
-				p.info("Succesfull login was made!");
+				p.info("Succesfull login was made by " + sender.getName());
+				sender.sendMessage("Login successful!");
+				try {
+					p.pwds.updateIp(sender.getName(), Bukkit.getPlayer(sender.getName()).getAddress().getHostName());
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
 				l.unauthed.remove(sender.getName());
+				p.getServer().getPlayer(sender.getName()).teleport(l.playerloginloc.get(sender.getName()));
 				return true;
 			} else {
 				sender.sendMessage("Bad password!");

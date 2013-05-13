@@ -1,9 +1,7 @@
 package com.craftrealms.CRAuth;
 
 import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.List;
 
 import net.db.MySQL;
 
@@ -17,8 +15,11 @@ public class CRAuth extends JavaPlugin {
 	private String sqlpass;
 	private String sqldb;
 	public String server;
+	public Boolean bungee;
+	public List<String> allowedcmds;
 	MySQL MySQL;
 	Connection c = null;
+	public PasswordOps pwds;
 	
     @Override
     public void onEnable(){
@@ -29,10 +30,14 @@ public class CRAuth extends JavaPlugin {
     	sqlpass = getConfig().getString("mysql.pass");
     	sqldb = getConfig().getString("mysql.db");
     	server = getConfig().getString("server");
+    	bungee = getConfig().getBoolean("bungee");
+    	allowedcmds = getConfig().getStringList("allowedCommands");
     	MySQL = new MySQL(sqlhost, "3306", sqldb, sqluser, sqlpass);
     	c = MySQL.open();
+    	pwds = new PasswordOps(this);
     	PlayerListener l = new PlayerListener(this);
     	getCommand("login").setExecutor(new CommandLogin(this, l));
+    	getCommand("register").setExecutor(new CommandRegister(this, l));
     }
     @Override
 	public void onDisable() {
@@ -40,12 +45,5 @@ public class CRAuth extends JavaPlugin {
 	}
 	public void info(String msg) {
 		getLogger().info(msg);
-	}
-	public String getHash(String user) throws SQLException {
-		String query = "SELECT password FROM authme WHERE username = '" + user + "'";
-		Statement statement = c.createStatement();
-		ResultSet r = statement.executeQuery(query);
-		r.next();
-		return r.getString("password");
 	}
 }

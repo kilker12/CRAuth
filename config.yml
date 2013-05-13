@@ -4,4 +4,7 @@ mysql:
   pass: ""
   db: "auth"
   
-server: "server1"
+allowedCommands:
+  - "h"
+  
+bungee: false
